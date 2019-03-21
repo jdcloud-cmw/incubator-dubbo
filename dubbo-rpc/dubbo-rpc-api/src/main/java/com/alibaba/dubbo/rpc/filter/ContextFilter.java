@@ -18,6 +18,7 @@ package com.alibaba.dubbo.rpc.filter;
 
 import com.alibaba.dubbo.common.Constants;
 import com.alibaba.dubbo.common.extension.Activate;
+import com.alibaba.dubbo.common.utils.StringUtils;
 import com.alibaba.dubbo.rpc.Filter;
 import com.alibaba.dubbo.rpc.Invocation;
 import com.alibaba.dubbo.rpc.Invoker;
@@ -26,6 +27,10 @@ import com.alibaba.dubbo.rpc.RpcContext;
 import com.alibaba.dubbo.rpc.RpcException;
 import com.alibaba.dubbo.rpc.RpcInvocation;
 import com.alibaba.dubbo.rpc.RpcResult;
+import com.alibaba.dubbo.rpc.jaeger.SpanBean;
+import com.alibaba.dubbo.rpc.jaeger.TraceUtils;
+import com.alibaba.fastjson.JSON;
+import io.jaegertracing.internal.JaegerSpanContext;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -69,10 +74,24 @@ public class ContextFilter implements Filter {
         if (invocation instanceof RpcInvocation) {
             ((RpcInvocation) invocation).setInvoker(invoker);
         }
+        if(TraceUtils.isTraceOpen()){
+            String spanBeanData = attachments.get(Constants.HIDDEN_KEY_TRACE_DATA);
+            if(StringUtils.isNotEmpty(spanBeanData)){
+                SpanBean spanBean = JSON.parseObject(spanBeanData, SpanBean.class);
+                JaegerSpanContext spanContext = TraceUtils.convertToContext(spanBean);
+                RpcContext.getContext().setTraceContext(spanContext);
+            }
+            TraceUtils.startTrace(invocation);
+            invocation.getAttachments().remove(Constants.HIDDEN_KEY_TRACE_DATA);
+        } else {
+            invocation.getAttachments().remove(Constants.HIDDEN_KEY_TRACE_DATA);
+            RpcContext.getContext().getAttachments().remove(Constants.HIDDEN_KEY_TRACE_DATA);
+        }
         try {
             RpcResult result = (RpcResult) invoker.invoke(invocation);
             // pass attachments to result
             result.addAttachments(RpcContext.getServerContext().getAttachments());
+            TraceUtils.endTrace(result);
             return result;
         } finally {
             RpcContext.removeContext();

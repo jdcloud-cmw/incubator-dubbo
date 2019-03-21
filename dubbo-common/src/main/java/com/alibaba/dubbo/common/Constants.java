@@ -643,6 +643,18 @@ public class Constants {
 
     public static final String TELNET = "telnet";
 
+    /**
+     * 隐藏属性的key：分布式跟踪 数据KEY
+     */
+    public static final String HIDDEN_KEY_TRACE_DATA = HIDE_KEY_PREFIX + "traceData";
+
+
+    /** 注册中心环境变量 */
+    public final static String REGISTRY_ADDRESS = "REGISTRY_ADDRESS";
+
+    /** 调用链环境变量KEY */
+    public final static String CALLCHAIN_ADDRESS = "CALLCHAIN_ADDRESS";
+
     /*
      * private Constants(){ }
      */

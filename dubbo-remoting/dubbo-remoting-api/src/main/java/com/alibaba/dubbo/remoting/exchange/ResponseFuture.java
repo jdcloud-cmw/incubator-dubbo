@@ -55,4 +55,9 @@ public interface ResponseFuture {
      */
     boolean isDone();
 
+
+    void setSpanBean(String spanBean);
+
+
+    String getSpanBean();
 }

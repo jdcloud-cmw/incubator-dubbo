@@ -20,6 +20,7 @@ import com.alibaba.dubbo.common.Constants;
 import com.alibaba.dubbo.common.URL;
 import com.alibaba.dubbo.common.threadlocal.InternalThreadLocal;
 import com.alibaba.dubbo.common.utils.NetUtils;
+import io.jaegertracing.internal.JaegerSpanContext;
 
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
@@ -85,6 +86,11 @@ public class RpcContext {
     private Invoker<?> invoker;
     @Deprecated
     private Invocation invocation;
+
+    /**
+     * 调用链上下文
+     */
+    private JaegerSpanContext traceContext;
 
     // now we don't use the 'values' map to hold these objects
     // we want these objects to be as generic as possible
@@ -678,5 +684,13 @@ public class RpcContext {
         } finally {
             removeAttachment(Constants.RETURN_KEY);
         }
+    }
+
+    public JaegerSpanContext getTraceContext() {
+        return traceContext;
+    }
+
+    public void setTraceContext(JaegerSpanContext traceContext) {
+        this.traceContext = traceContext;
     }
 }

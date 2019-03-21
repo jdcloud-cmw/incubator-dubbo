@@ -22,13 +22,8 @@ import com.alibaba.dubbo.common.logger.Logger;
 import com.alibaba.dubbo.common.logger.LoggerFactory;
 import com.alibaba.dubbo.remoting.exchange.ResponseCallback;
 import com.alibaba.dubbo.remoting.exchange.ResponseFuture;
-import com.alibaba.dubbo.rpc.Filter;
-import com.alibaba.dubbo.rpc.Invocation;
-import com.alibaba.dubbo.rpc.Invoker;
-import com.alibaba.dubbo.rpc.Result;
-import com.alibaba.dubbo.rpc.RpcContext;
-import com.alibaba.dubbo.rpc.RpcException;
-import com.alibaba.dubbo.rpc.StaticContext;
+import com.alibaba.dubbo.rpc.*;
+import com.alibaba.dubbo.rpc.jaeger.TraceUtils;
 import com.alibaba.dubbo.rpc.protocol.dubbo.FutureAdapter;
 import com.alibaba.dubbo.rpc.support.RpcUtils;
 
@@ -90,11 +85,16 @@ public class FutureFilter implements Filter {
                     } else {
                         fireReturnCallback(invoker, invocation, result.getValue());
                     }
+                    if(TraceUtils.isTraceOpen()) {
+                        ((RpcResult) result).setAttachment(Constants.HIDDEN_KEY_TRACE_DATA, invocation.getAttachment(Constants.HIDDEN_KEY_TRACE_DATA));
+                    }
+                    TraceUtils.rpcClientRecv(result);
                 }
 
                 @Override
                 public void caught(Throwable exception) {
                     fireThrowCallback(invoker, invocation, exception);
+                    TraceUtils.rpcClientRecv(invocation, exception);
                 }
             });
         }

@@ -169,6 +169,8 @@ public class DubboBeanDefinitionParser implements BeanDefinitionParser {
                                 beanDefinition.getPropertyValues().addPropertyValue(property, registryConfig);
                             } else if ("registry".equals(property) && value.indexOf(',') != -1) {
                                 parseMultiRef("registries", value, beanDefinition, parserContext);
+//                            } else if ("jaegerTrace".equals(property) && value.indexOf(',') != -1) {
+//                                parseMultiRef("jaegerTrace", value, beanDefinition, parserContext);
                             } else if ("provider".equals(property) && value.indexOf(',') != -1) {
                                 parseMultiRef("providers", value, beanDefinition, parserContext);
                             } else if ("protocol".equals(property) && value.indexOf(',') != -1) {

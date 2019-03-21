@@ -27,6 +27,8 @@ public class SimpleFuture implements ResponseFuture {
 
     private final Object value;
 
+    private String spanbeanData;
+
     public SimpleFuture(Object value) {
         this.value = value;
     }
@@ -49,6 +51,16 @@ public class SimpleFuture implements ResponseFuture {
     @Override
     public boolean isDone() {
         return true;
+    }
+
+    @Override
+    public void setSpanBean(String spanBean) {
+        this.spanbeanData = spanBean;
+    }
+
+    @Override
+    public String getSpanBean() {
+        return spanbeanData;
     }
 
 }

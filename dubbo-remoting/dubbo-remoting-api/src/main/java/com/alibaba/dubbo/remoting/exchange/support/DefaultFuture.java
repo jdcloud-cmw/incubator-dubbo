@@ -64,6 +64,7 @@ public class DefaultFuture implements ResponseFuture {
     private volatile long sent;
     private volatile Response response;
     private volatile ResponseCallback callback;
+    private String spanbeanData;
 
     public DefaultFuture(Channel channel, Request request, int timeout) {
         this.channel = channel;
@@ -173,6 +174,16 @@ public class DefaultFuture implements ResponseFuture {
     @Override
     public boolean isDone() {
         return response != null;
+    }
+
+    @Override
+    public void setSpanBean(String spanBean) {
+        this.spanbeanData = spanBean;
+    }
+
+    @Override
+    public String getSpanBean() {
+        return spanbeanData;
     }
 
     @Override

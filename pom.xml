@@ -1,3 +1,4 @@
+ <?xml version="1.0" encoding="UTF-8"?>
 <!--
   Licensed to the Apache Software Foundation (ASF) under one or more
   contributor license agreements.  See the NOTICE file distributed with
@@ -14,19 +15,13 @@
   See the License for the specific language governing permissions and
   limitations under the License.
   -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-
-    <parent>
-        <groupId>org.sonatype.oss</groupId>
-        <artifactId>oss-parent</artifactId>
-        <version>7</version>
-    </parent>
-
     <groupId>com.alibaba</groupId>
-    <artifactId>dubbo-parent</artifactId>
-    <version>2.6.6</version>
+    <artifactId>dubbo-jdsf</artifactId>
+    <version>2.6.7-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>${project.artifactId}</name>
@@ -41,12 +36,6 @@
         </license>
     </licenses>
 
-    <scm>
-        <url>https://github.com/apache/incubator-dubbo</url>
-        <connection>scm:git:https://github.com/apache/incubator-dubbo.git</connection>
-        <developerConnection>scm:git:https://github.com/apache/incubator-dubbo.git</developerConnection>
-      <tag>dubbo-2.6.6</tag>
-  </scm>
     <mailingLists>
         <mailingList>
             <name>Development List</name>
@@ -106,8 +95,8 @@
 
         <profile.name>oss</profile.name>
         <!-- for maven compiler plugin -->
-        <java_source_version>1.6</java_source_version>
-        <java_target_version>1.6</java_target_version>
+        <java_source_version>1.8</java_source_version>
+        <java_target_version>1.8</java_target_version>
         <file_encoding>UTF-8</file_encoding>
         <!-- Maven plugins -->
         <maven_jar_version>3.0.2</maven_jar_version>
@@ -149,7 +138,7 @@
             <dependency>
                 <groupId>com.alibaba</groupId>
                 <artifactId>dubbo-dependencies-bom</artifactId>
-                <version>2.6.6</version>
+                <version>2.6.7-SNAPSHOT</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -258,7 +247,7 @@
                                 <configuration>
                                     <configLocation>codestyle/checkstyle.xml</configLocation>
                                     <suppressionsLocation>codestyle/checkstyle-suppressions.xml</suppressionsLocation>
-                                    <linkXRef>false</linkXRef>
+
                                     <encoding>UTF-8</encoding>
                                     <consoleOutput>true</consoleOutput>
                                     <failOnViolation>true</failOnViolation>
@@ -376,64 +365,6 @@
                     <argLine>${argline} ${jacocoArgLine}</argLine>
                     <systemProperties>
                         <!-- common shared -->
-                        <property>
-                            <name>transporter</name>
-                            <value>${transporter}</value>
-                        </property>
-                        <property>
-                            <name>serialization</name>
-                            <value>${serialization}</value>
-                        </property>
-                        <!-- server side -->
-                        <property>
-                            <name>port</name>
-                            <value>${port}</value>
-                        </property>
-                        <property>
-                            <name>threadpool</name>
-                            <value>${threadpool}</value>
-                        </property>
-                        <property>
-                            <name>threads</name>
-                            <value>${threads}</value>
-                        </property>
-                        <property>
-                            <name>iothreads</name>
-                            <value>${iothreads}</value>
-                        </property>
-                        <!-- client side -->
-                        <property>
-                            <name>server</name>
-                            <value>${server}</value>
-                        </property>
-                        <property>
-                            <name>timeout</name>
-                            <value>${timeout}</value>
-                        </property>
-                        <property>
-                            <name>length</name>
-                            <value>${length}</value>
-                        </property>
-                        <property>
-                            <name>connections</name>
-                            <value>${connections}</value>
-                        </property>
-                        <property>
-                            <name>base</name>
-                            <value>${base}</value>
-                        </property>
-                        <property>
-                            <name>concurrent</name>
-                            <value>${concurrent}</value>
-                        </property>
-                        <property>
-                            <name>runs</name>
-                            <value>${runs}</value>
-                        </property>
-                        <property>
-                            <name>onerror</name>
-                            <value>${onerror}</value>
-                        </property>
                     </systemProperties>
                 </configuration>
             </plugin>
@@ -605,4 +536,11 @@
             </plugins>
         </pluginManagement>
     </build>
+    <distributionManagement>
+        <repository>
+            <id>snapshots</id>
+            <name>libs-snapshots</name>
+            <url>http://artifactory.jd.com/libs-snapshots-local</url>
+        </repository>
+    </distributionManagement>
 </project>

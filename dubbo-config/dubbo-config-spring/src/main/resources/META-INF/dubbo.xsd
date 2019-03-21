@@ -1242,4 +1242,50 @@
         </xsd:annotation>
     </xsd:element>
 
+    <xsd:complexType name="jaegerTraceType">
+        <xsd:attribute name="id" type="xsd:ID">
+            <xsd:annotation>
+                <xsd:documentation><![CDATA[ Spring的BeanId ]]></xsd:documentation>
+            </xsd:annotation>
+        </xsd:attribute>
+        <xsd:attribute name="traceopen" type="xsd:boolean" default="false">
+            <xsd:annotation>
+                <xsd:documentation><![CDATA[ 指定调用链是否启动 ]]></xsd:documentation>
+            </xsd:annotation>
+        </xsd:attribute>
+        <xsd:attribute name="address" type="xsd:string" use="optional">
+            <xsd:annotation>
+                <xsd:documentation><![CDATA[ 指定调用链的collector地址 ]]></xsd:documentation>
+            </xsd:annotation>
+        </xsd:attribute>
+        <xsd:attribute name="type" use="optional">
+            <xsd:annotation>
+                <xsd:documentation><![CDATA[ 指定调用链的采样类型 ]]></xsd:documentation>
+            </xsd:annotation>
+            <xsd:simpleType>
+                <xsd:restriction base="xsd:string">
+                    <xsd:enumeration value="const" />
+                    <xsd:enumeration value="probabilistic" />
+                    <xsd:enumeration value="ratelimiting" />
+                </xsd:restriction>
+            </xsd:simpleType>
+        </xsd:attribute>
+        <xsd:attribute name="sampling" type="xsd:double" use="optional">
+            <xsd:annotation>
+                <xsd:documentation><![CDATA[ 指定调用链的采样率 ]]></xsd:documentation>
+            </xsd:annotation>
+        </xsd:attribute>
+    </xsd:complexType>
+
+    <xsd:element name="jaegerTrace" type="jaegerTraceType">
+        <xsd:annotation>
+            <xsd:documentation><![CDATA[ The jaeger traces config ]]></xsd:documentation>
+            <xsd:appinfo>
+                <tool:annotation>
+                    <tool:exports type="com.alibaba.dubbo.config.JaegerTraceConfig"/>
+                </tool:annotation>
+            </xsd:appinfo>
+        </xsd:annotation>
+    </xsd:element>
+
 </xsd:schema>

@@ -98,6 +98,16 @@ public class MockedClient implements ExchangeClient {
                 return true;
             }
 
+            @Override
+            public void setSpanBean(String spanBean) {
+
+            }
+
+            @Override
+            public String getSpanBean() {
+                return null;
+            }
+
             public void setCallback(ResponseCallback callback) {
             }
         };

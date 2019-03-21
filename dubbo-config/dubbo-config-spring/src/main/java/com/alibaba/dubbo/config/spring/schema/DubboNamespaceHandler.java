@@ -17,13 +17,7 @@
 package com.alibaba.dubbo.config.spring.schema;
 
 import com.alibaba.dubbo.common.Version;
-import com.alibaba.dubbo.config.ApplicationConfig;
-import com.alibaba.dubbo.config.ConsumerConfig;
-import com.alibaba.dubbo.config.ModuleConfig;
-import com.alibaba.dubbo.config.MonitorConfig;
-import com.alibaba.dubbo.config.ProtocolConfig;
-import com.alibaba.dubbo.config.ProviderConfig;
-import com.alibaba.dubbo.config.RegistryConfig;
+import com.alibaba.dubbo.config.*;
 import com.alibaba.dubbo.config.spring.ReferenceBean;
 import com.alibaba.dubbo.config.spring.ServiceBean;
 
@@ -52,6 +46,7 @@ public class DubboNamespaceHandler extends NamespaceHandlerSupport {
         registerBeanDefinitionParser("service", new DubboBeanDefinitionParser(ServiceBean.class, true));
         registerBeanDefinitionParser("reference", new DubboBeanDefinitionParser(ReferenceBean.class, false));
         registerBeanDefinitionParser("annotation", new AnnotationBeanDefinitionParser());
+        registerBeanDefinitionParser("jaegerTrace", new DubboBeanDefinitionParser(JaegerTraceConfig.class, true));
     }
 
 }

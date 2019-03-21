@@ -31,6 +31,7 @@ import com.alibaba.dubbo.rpc.RpcContext;
 import com.alibaba.dubbo.rpc.RpcException;
 import com.alibaba.dubbo.rpc.RpcInvocation;
 import com.alibaba.dubbo.rpc.RpcResult;
+import com.alibaba.dubbo.rpc.jaeger.TraceUtils;
 import com.alibaba.dubbo.rpc.protocol.AbstractInvoker;
 import com.alibaba.dubbo.rpc.support.RpcUtils;
 
@@ -81,19 +82,31 @@ public class DubboInvoker<T> extends AbstractInvoker<T> {
             boolean isAsync = RpcUtils.isAsync(getUrl(), invocation);
             boolean isOneway = RpcUtils.isOneway(getUrl(), invocation);
             int timeout = getUrl().getMethodParameter(methodName, Constants.TIMEOUT_KEY, Constants.DEFAULT_TIMEOUT);
+            Result result = null;
             if (isOneway) {
+                TraceUtils.setContext(invocation);
                 boolean isSent = getUrl().getMethodParameter(methodName, Constants.SENT_KEY, false);
                 currentClient.send(inv, isSent);
                 RpcContext.getContext().setFuture(null);
-                return new RpcResult();
+                result = new RpcResult();
+                if(TraceUtils.isTraceOpen()) {
+                    ((RpcResult) result).setAttachment(Constants.HIDDEN_KEY_TRACE_DATA, invocation.getAttachment(Constants.HIDDEN_KEY_TRACE_DATA));
+                }
             } else if (isAsync) {
                 ResponseFuture future = currentClient.request(inv, timeout);
+                TraceUtils.setTraceContext(invocation, future);
                 RpcContext.getContext().setFuture(new FutureAdapter<Object>(future));
                 return new RpcResult();
             } else {
+                TraceUtils.setContext(invocation);
                 RpcContext.getContext().setFuture(null);
-                return (Result) currentClient.request(inv, timeout).get();
+                result = (Result)currentClient.request(inv, timeout).get();
             }
+            if(TraceUtils.isTraceOpen()) {
+                ((RpcResult) result).setAttachment(Constants.HIDDEN_KEY_TRACE_DATA, invocation.getAttachment(Constants.HIDDEN_KEY_TRACE_DATA));
+            }
+            TraceUtils.rpcClientRecv(result);
+            return result;
         } catch (TimeoutException e) {
             throw new RpcException(RpcException.TIMEOUT_EXCEPTION, "Invoke remote method timeout. method: " + invocation.getMethodName() + ", provider: " + getUrl() + ", cause: " + e.getMessage(), e);
         } catch (RemotingException e) {

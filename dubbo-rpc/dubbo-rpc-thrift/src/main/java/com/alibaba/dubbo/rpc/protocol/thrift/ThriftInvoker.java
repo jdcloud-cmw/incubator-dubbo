@@ -22,12 +22,8 @@ import com.alibaba.dubbo.common.utils.AtomicPositiveInteger;
 import com.alibaba.dubbo.remoting.RemotingException;
 import com.alibaba.dubbo.remoting.TimeoutException;
 import com.alibaba.dubbo.remoting.exchange.ExchangeClient;
-import com.alibaba.dubbo.rpc.Invocation;
-import com.alibaba.dubbo.rpc.Invoker;
-import com.alibaba.dubbo.rpc.Result;
-import com.alibaba.dubbo.rpc.RpcContext;
-import com.alibaba.dubbo.rpc.RpcException;
-import com.alibaba.dubbo.rpc.RpcInvocation;
+import com.alibaba.dubbo.rpc.*;
+import com.alibaba.dubbo.rpc.jaeger.TraceUtils;
 import com.alibaba.dubbo.rpc.protocol.AbstractInvoker;
 
 import java.util.Set;
@@ -83,9 +79,13 @@ public class ThriftInvoker<T> extends AbstractInvoker<T> {
                     methodName, Constants.TIMEOUT_KEY, Constants.DEFAULT_TIMEOUT);
 
             RpcContext.getContext().setFuture(null);
-
-            return (Result) currentClient.request(inv, timeout).get();
-
+            TraceUtils.setContext(invocation);
+            Result result= (Result) currentClient.request(inv, timeout).get();
+            if(TraceUtils.isTraceOpen()) {
+                ((RpcResult) result).setAttachment(Constants.HIDDEN_KEY_TRACE_DATA, invocation.getAttachment(Constants.HIDDEN_KEY_TRACE_DATA));
+            }
+            TraceUtils.rpcClientRecv(result);
+            return result;
         } catch (TimeoutException e) {
             throw new RpcException(RpcException.TIMEOUT_EXCEPTION, e.getMessage(), e);
         } catch (RemotingException e) {

@@ -18,12 +18,12 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>com.alibaba</groupId>
-        <artifactId>dubbo-parent</artifactId>
-        <version>2.6.6</version>
+        <artifactId>dubbo-jdsf</artifactId>
+        <version>2.6.7-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <artifactId>dubbo</artifactId>
-    <version>2.6.6</version>
+    <version>2.6.7-SNAPSHOT</version>
     <packaging>jar</packaging>
     <name>dubbo-all</name>
     <description>The all in one project of dubbo</description>
@@ -237,6 +237,13 @@
         </dependency>
         <dependency>
             <groupId>com.alibaba</groupId>
+            <artifactId>dubbo-registry-consul</artifactId>
+            <version>${project.version}</version>
+            <scope>compile</scope>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>com.alibaba</groupId>
             <artifactId>dubbo-monitor-api</artifactId>
             <version>${project.version}</version>
             <scope>compile</scope>
@@ -402,6 +409,7 @@
                                     <include>com.alibaba:dubbo-registry-multicast</include>
                                     <include>com.alibaba:dubbo-registry-zookeeper</include>
                                     <include>com.alibaba:dubbo-registry-redis</include>
+                                    <include>com.alibaba:dubbo-registry-consul</include>
                                     <include>com.alibaba:dubbo-monitor-api</include>
                                     <include>com.alibaba:dubbo-monitor-default</include>
                                     <include>com.alibaba:dubbo-config-api</include>

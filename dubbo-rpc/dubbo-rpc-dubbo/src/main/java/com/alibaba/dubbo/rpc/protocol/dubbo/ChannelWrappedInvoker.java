@@ -25,11 +25,8 @@ import com.alibaba.dubbo.remoting.TimeoutException;
 import com.alibaba.dubbo.remoting.exchange.ExchangeClient;
 import com.alibaba.dubbo.remoting.exchange.support.header.HeaderExchangeClient;
 import com.alibaba.dubbo.remoting.transport.ClientDelegate;
-import com.alibaba.dubbo.rpc.Invocation;
-import com.alibaba.dubbo.rpc.Result;
-import com.alibaba.dubbo.rpc.RpcException;
-import com.alibaba.dubbo.rpc.RpcInvocation;
-import com.alibaba.dubbo.rpc.RpcResult;
+import com.alibaba.dubbo.rpc.*;
+import com.alibaba.dubbo.rpc.jaeger.TraceUtils;
 import com.alibaba.dubbo.rpc.protocol.AbstractInvoker;
 
 import java.net.InetSocketAddress;
@@ -57,17 +54,25 @@ class ChannelWrappedInvoker<T> extends AbstractInvoker<T> {
         inv.setAttachment(Constants.PATH_KEY, getInterface().getName());
         inv.setAttachment(Constants.CALLBACK_SERVICE_KEY, serviceKey);
 
+        Result result = null;
         try {
+            TraceUtils.setContext(invocation);
             if (getUrl().getMethodParameter(invocation.getMethodName(), Constants.ASYNC_KEY, false)) { // may have concurrency issue
                 currentClient.send(inv, getUrl().getMethodParameter(invocation.getMethodName(), Constants.SENT_KEY, false));
-                return new RpcResult();
-            }
-            int timeout = getUrl().getMethodParameter(invocation.getMethodName(), Constants.TIMEOUT_KEY, Constants.DEFAULT_TIMEOUT);
-            if (timeout > 0) {
-                return (Result) currentClient.request(inv, timeout).get();
+                result = new RpcResult();
             } else {
-                return (Result) currentClient.request(inv).get();
+                int timeout = getUrl().getMethodParameter(invocation.getMethodName(), Constants.TIMEOUT_KEY, Constants.DEFAULT_TIMEOUT);
+                if (timeout > 0) {
+                    result = (Result) currentClient.request(inv, timeout).get();
+                } else {
+                    result = (Result) currentClient.request(inv).get();
+                }
             }
+            if(TraceUtils.isTraceOpen()) {
+                ((RpcResult) result).setAttachment(Constants.HIDDEN_KEY_TRACE_DATA, invocation.getAttachment(Constants.HIDDEN_KEY_TRACE_DATA));
+            }
+            TraceUtils.rpcClientRecv(result);
+            return result;
         } catch (RpcException e) {
             throw e;
         } catch (TimeoutException e) {

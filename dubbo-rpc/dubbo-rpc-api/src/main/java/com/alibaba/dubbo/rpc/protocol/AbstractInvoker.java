@@ -22,13 +22,8 @@ import com.alibaba.dubbo.common.Version;
 import com.alibaba.dubbo.common.logger.Logger;
 import com.alibaba.dubbo.common.logger.LoggerFactory;
 import com.alibaba.dubbo.common.utils.NetUtils;
-import com.alibaba.dubbo.rpc.Invocation;
-import com.alibaba.dubbo.rpc.Invoker;
-import com.alibaba.dubbo.rpc.Result;
-import com.alibaba.dubbo.rpc.RpcContext;
-import com.alibaba.dubbo.rpc.RpcException;
-import com.alibaba.dubbo.rpc.RpcInvocation;
-import com.alibaba.dubbo.rpc.RpcResult;
+import com.alibaba.dubbo.rpc.*;
+import com.alibaba.dubbo.rpc.jaeger.TraceUtils;
 import com.alibaba.dubbo.rpc.support.RpcUtils;
 
 import java.lang.reflect.InvocationTargetException;
@@ -143,6 +138,10 @@ public abstract class AbstractInvoker<T> implements Invoker<T> {
              * by the built-in retry mechanism of the Dubbo. The attachment to update RpcContext will no longer work, which is
              * a mistake in most cases (for example, through Filter to RpcContext output traceId and spanId and other information).
              */
+            if(contextAttachments.containsKey(Constants.HIDDEN_KEY_TRACE_DATA)){
+                contextAttachments = new HashMap<>(contextAttachments);
+                contextAttachments.remove(Constants.HIDDEN_KEY_TRACE_DATA);
+            }
             invocation.addAttachments(contextAttachments);
         }
         if (getUrl().getMethodParameter(invocation.getMethodName(), Constants.ASYNC_KEY, false)) {
@@ -150,10 +149,12 @@ public abstract class AbstractInvoker<T> implements Invoker<T> {
         }
         RpcUtils.attachInvocationIdIfAsync(getUrl(), invocation);
 
-
+        Throwable throwable = null;
         try {
-            return doInvoke(invocation);
+            Result result = doInvoke(invocation);
+            return result;
         } catch (InvocationTargetException e) { // biz exception
+            throwable = e;
             Throwable te = e.getTargetException();
             if (te == null) {
                 return new RpcResult(e);
@@ -164,13 +165,19 @@ public abstract class AbstractInvoker<T> implements Invoker<T> {
                 return new RpcResult(te);
             }
         } catch (RpcException e) {
+            throwable = e;
             if (e.isBiz()) {
                 return new RpcResult(e);
             } else {
                 throw e;
             }
         } catch (Throwable e) {
+            throwable = e;
             return new RpcResult(e);
+        } finally {
+            if(throwable != null){
+                TraceUtils.rpcClientRecv(invocation, throwable);
+            }
         }
     }
 
